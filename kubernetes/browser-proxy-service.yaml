@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    drill: browser-proxy
+  name: browser-proxy
+spec:
+  ports:
+  - name: "7777"
+    port: 7777
+    targetPort: 7777
+  selector:
+    drill: browser-proxy
+status:
+  loadBalancer: {}

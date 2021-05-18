@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    drill: spring-petclinic-sample
+  name: spring-petclinic-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      drill: spring-petclinic-sample
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        drill: spring-petclinic-sample
+    spec:
+      containers:
+        - env:
+            - name: JAVA_TOOL_OPTIONS
+              value: '"-agentpath:/data/agent/libdrill_agent.so=drillInstallationDir=/data/agent,adminAddress=drill-admin:8090,agentId=pet,buildVersion=0.1.0,logLevel=DEBUG"'
+          image: 'drill4j/spring-petclinic-sample:0.1.0'
+          imagePullPolicy: ""
+          name: spring-petclinic-sample
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /data
+              name: agent-files
+          resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: agent-files
+          persistentVolumeClaim:
+            claimName: agent-files
+status: {}

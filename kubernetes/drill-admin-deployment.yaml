@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    drill: backend
+  name: drill-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      drill: backend
+  strategy: {}
+  template:
+    metadata:
+
+      labels:
+        drill: backend
+    spec:
+      containers:
+      - env:
+        - name: DRILL_AGENTS_SOCKET_TIMEOUT
+          value: "120"
+        - name: DRILL_DEFAULT_PACKAGES
+          value: com/epam/ta/reportportal
+        - name: JAVA_TOOL_OPTIONS
+          value: -Xmx6g
+        - name: LOG_LEVEL
+          value: DEBUG
+        - name: TEST2CODE_PLUGIN_VERSION
+          value: latest
+        image: drill4j/admin:latest
+        imagePullPolicy: ""
+        name: drill-admin
+        ports:
+        - containerPort: 8090
+        volumeMounts:
+          - mountPath: /work
+            name: drill-storage
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: drill-storage
+          persistentVolumeClaim:
+            claimName: drill-storage
+status: {}

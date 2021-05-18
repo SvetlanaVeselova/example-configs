@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    drill: ssl-proxy
+  name: ssl-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      drill: ssl-proxy
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        drill: ssl-proxy
+    spec:
+      containers:
+      - env:
+        - name: DOMAIN
+          value: drill4j.example.com
+        - name: SSL_PORT
+          value: "8443"
+        - name: TARGET_HOST
+          value: admin-ui
+        - name: TARGET_PORT
+          value: "8080"
+        image: drill4j/ssl-proxy:0.1.0
+        imagePullPolicy: ""
+        name: ssl-proxy
+        ports:
+        - containerPort: 8443
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

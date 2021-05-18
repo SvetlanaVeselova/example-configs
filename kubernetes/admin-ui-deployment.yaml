@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    drill: frontend
+  name: admin-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      drill: frontend
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        drill: frontend
+    spec:
+      containers:
+      - image: drill4j/admin-ui:latest
+        imagePullPolicy: ""
+        name: admin-ui
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

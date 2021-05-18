@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    drill: browser-proxy
+  name: browser-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      drill: browser-proxy
+  strategy: {}
+  template:
+    metadata:
+
+      labels:
+        drill: browser-proxy
+    spec:
+      containers:
+      - image: drill4j/browser-proxy:0.1.0
+        imagePullPolicy: ""
+        name: browser-proxy
+        ports:
+        - containerPort: 7777
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

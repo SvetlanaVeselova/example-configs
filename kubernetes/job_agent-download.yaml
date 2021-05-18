@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: drill-agent-download
+spec:
+  ttlSecondsAfterFinished: 10
+  template:
+    spec:
+      containers:
+        - env:
+            - name: AGENT_VERSION
+              value: latest
+            - name: AUTOTEST_AGENT_VERSION
+              value: latest
+          name: drill-agent
+          image: adenmin/drill-agent-scripts:0.2.0
+          command: ["sh", "/agent-download.sh"]
+          volumeMounts:
+            - mountPath: /data
+              name: agent-files
+      restartPolicy: Never
+      volumes:
+        - name: agent-files
+          persistentVolumeClaim:
+            claimName: agent-files

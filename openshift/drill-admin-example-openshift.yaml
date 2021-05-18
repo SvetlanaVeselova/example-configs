@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "Drill admin"
+  annotations:
+    description: Drill Admin template
+objects:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: drill-storage
+    spec:
+      resources:
+        requests:
+          storage: 10Gi
+      accessModes:
+        - ReadWriteMany
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: drill
+      name: admin-ui
+    spec:
+      ports:
+        - name: "8091"
+          port: 8091
+          targetPort: 8080
+      selector:
+        app: drill
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: drill
+      name: admin-ui
+    spec:
+      replicas: 1
+      strategy: {}
+      template:
+        metadata:
+          labels:
+            app: drill
+        spec:
+          containers:
+            - env:
+                - name: UPSTREAM
+                  value: drill-admin.${PROJECT}.svc:8090
+              image: drill4j/admin-ui:${FRONT_VERSION}
+              name: admin-ui
+              ports:
+                - containerPort: 8080
+              livenessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 180
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8080
+                timeoutSeconds: 5
+              readinessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8080
+                timeoutSeconds: 5
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: drill
+      name: drill-admin
+    spec:
+      replicas: 1
+      strategy: {}
+      template:
+        metadata:
+          labels:
+            app: drill
+        spec:
+          containers:
+            - env:
+                - name: TEST2CODE_PLUGIN_VERSION
+                  value: ${TEST2CODE_PLUGIN_VERSION}
+                - name: JAVA_TOOL_OPTIONS
+                  value: ${JAVA_TOOL_OPTIONS}
+                - name: LOG_LEVEL
+                  value: ${LOG_LEVEL}
+              image: drill4j/admin:${BACK_VERSION}
+              name: drill-admin
+              ports:
+                - containerPort: 8090
+              volumeMounts:
+                - mountPath: /work
+                  name: admin-storage
+              livenessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 180
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8090
+                timeoutSeconds: 5
+              readinessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8090
+                timeoutSeconds: 5
+          volumes:
+            - name: admin-storage
+              persistentVolumeClaim:
+                claimName: drill-storage
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: drill
+      name: drill-admin
+    spec:
+      ports:
+        - name: "8090"
+          port: 8090
+          targetPort: 8090
+      selector:
+        app: drill
+parameters:
+  - displayName: Current project (namespace)
+    name: PROJECT
+    required: true
+  - displayName: Drill4J front-end version
+    name: FRONT_VERSION
+    required: true
+    value: "latest"
+  - displayName: Drill4J back-end version
+    name: BACK_VERSION
+    required: true
+    value: "latest"
+  - displayName: Drill4J plugin version
+    name: TEST2CODE_PLUGIN_VERSION
+    required: true
+    value: "latest"
+  - displayName: LOG_LEVEL
+    name: LOG_LEVEL
+    required: true
+    value: "INFO"
+  - displayName: JAVA_TOOL_OPTIONS
+    name: JAVA_TOOL_OPTIONS
+    value: "-Xmx4g"
+    required: false

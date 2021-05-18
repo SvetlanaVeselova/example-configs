@@ -1,0 +1,268 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "Drill with example app"
+  annotations:
+    description: Drill4J template
+objects:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: drill-storage
+    spec:
+      resources:
+        requests:
+          storage: 1Gi
+      accessModes:
+        - ReadWriteMany
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: agent-files
+    spec:
+      resources:
+        requests:
+          storage: 100Mi
+      accessModes:
+        - ReadWriteMany
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: drill-agent-download
+    spec:
+      ttlSecondsAfterFinished: 10
+      template:
+        spec:
+          containers:
+            - env:
+                - name: AGENT_VERSION
+                  value: ${AGENT_VERSION}
+                - name: AUTOTEST_AGENT_VERSION
+                  value: ${AUTOTEST_AGENT_VERSION}
+              name: agent-files
+              image: adenmin/drill-agent-scripts:0.2.0
+              command: ["sh", "/agent-download.sh"]
+              volumeMounts:
+                - mountPath: /data
+                  name: agent-files
+          restartPolicy: Never
+          volumes:
+            - name: agent-files
+              persistentVolumeClaim:
+                claimName: agent-files
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: drill
+      name: admin-ui
+    spec:
+      ports:
+        - name: "8091"
+          port: 8091
+          targetPort: 8080
+      selector:
+        app: drill
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: drill
+      name: admin-ui
+    spec:
+      replicas: 1
+      strategy: {}
+      template:
+        metadata:
+          labels:
+            app: drill
+        spec:
+          containers:
+            - env:
+                - name: UPSTREAM
+                  value: drill-admin.${PROJECT}.svc:8090
+              image: drill4j/admin-ui:${FRONT_VERSION}
+              name: admin-ui
+              ports:
+                - containerPort: 8080
+              livenessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 180
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8080
+                timeoutSeconds: 5
+              readinessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8080
+                timeoutSeconds: 5
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: drill
+      name: drill-admin
+    spec:
+      replicas: 1
+      strategy: {}
+      template:
+        metadata:
+          labels:
+            app: drill
+        spec:
+          containers:
+            - env:
+                - name: TEST2CODE_PLUGIN_VERSION
+                  value: ${TEST2CODE_PLUGIN_VERSION}
+                - name: DRILL_AGENTS_SOCKET_TIMEOUT
+                  value: ${DRILL_AGENTS_SOCKET_TIMEOUT}
+                - name: DRILL_DEFAULT_PACKAGES
+                  value: ${DRILL_DEFAULT_PACKAGES}
+                - name: JAVA_TOOL_OPTIONS
+                  value: ${JAVA_TOOL_OPTIONS}
+                - name: LOG_LEVEL
+                  value: ${LOG_LEVEL}
+              image: drill4j/admin:${BACK_VERSION}
+              name: drill-admin
+              ports:
+                - containerPort: 8090
+              volumeMounts:
+                - mountPath: /work
+                  name: admin-storage
+              livenessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 180
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8090
+                timeoutSeconds: 5
+              readinessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8090
+                timeoutSeconds: 5
+          volumes:
+            - name: admin-storage
+              persistentVolumeClaim:
+                claimName: drill-storage
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: drill
+      name: drill-admin
+    spec:
+      ports:
+        - name: "8090"
+          port: 8090
+          targetPort: 8090
+      selector:
+        app: drill
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: spring-petclinic-sample
+      name: spring-petclinic-sample
+    spec:
+      replicas: 1
+      strategy: {}
+      template:
+        metadata:
+          labels:
+            app: spring-petclinic-sample
+        spec:
+          containers:
+            - env:
+                - name: JAVA_TOOL_OPTIONS
+                  value: '"-agentpath:/data/agent/libdrill_agent.so=drillInstallationDir=/data/agent,adminAddress=drill-admin.${PROJECT}:8090,agentId=Petclinic,logLevel=${LOG_LEVEL},buildVersion=0.1.0"'
+              image: drill4j/spring-petclinic-sample:0.1.0
+              name: spring-petclinic-sample
+              ports:
+                - containerPort: 8080
+              volumeMounts:
+                - mountPath: /data
+                  name: agent-files
+              livenessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 180
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8080
+                timeoutSeconds: 5
+              readinessProbe:
+                failureThreshold: 5
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                tcpSocket:
+                  port: 8080
+                timeoutSeconds: 5
+          volumes:
+            - name: agent-files
+              persistentVolumeClaim:
+                claimName: agent-files
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: spring-petclinic-sample
+      name: spring-petclinic-sample
+    spec:
+      ports:
+        - name: "8082"
+          port: 8082
+          targetPort: 8080
+      selector:
+        app: spring-petclinic-sample
+parameters:
+  - displayName: Current project (namespace)
+    name: PROJECT
+    required: true
+  - displayName: Drill4J front-end version
+    name: FRONT_VERSION
+    required: true
+    value: "0.7.0-267"
+  - displayName: Drill4J back-end version
+    name: BACK_VERSION
+    required: true
+    value: "0.7.0-95"
+  - displayName: Drill4J plugin version
+    name: TEST2CODE_PLUGIN_VERSION
+    required: true
+    value: "0.7.0-126"
+  - displayName: Timeout for scanning classes of application (default 90s)
+    name: DRILL_AGENTS_SOCKET_TIMEOUT
+    required: true
+    value: "360"
+  - displayName: Root package of your application
+    name: DRILL_DEFAULT_PACKAGES
+    required: true
+    value: "org/springframework/samples/petclinic"
+  - displayName: LOG_LEVEL
+    name: LOG_LEVEL
+    required: true
+    value: "DEBUG"
+  - displayName: JAVA_TOOL_OPTIONS
+    name: JAVA_TOOL_OPTIONS
+    value: "-Xmx4g"
+    required: false
+  - displayName: Drill4J agent version
+    name: AGENT_VERSION
+    required: true
+    value: "0.7.0-28"
+  - displayName: Drill4J autotest agent version
+    name: AUTOTEST_AGENT_VERSION
+    required: true
+    value: "0.15.6"
