@@ -30,8 +30,8 @@ spec:
       containers:
         - name: java-agent
           image: drill4j/java-agent:0.7.0-28
-          command: [ "/bin/bash", "-c", "--" ]
-          args: [ "while true; do sleep 30; done;" ]
+          # command: [ "/bin/bash", "-c", "--" ]
+          # args: [ "while true; do sleep 30; done;" ]
           volumeMounts:
           - name: agent-files
             mountPath: /java-agent
@@ -42,16 +42,16 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8087
+              containerPort: 8080
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
-              port: 8087
+              port: 8080
           readinessProbe:
             httpGet:
               path: /
-              port: 8087
+              port: 8080
           volumeMounts:
           - name: agent-files
             mountPath: /data
