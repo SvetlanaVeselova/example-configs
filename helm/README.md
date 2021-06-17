@@ -24,6 +24,6 @@ helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingr
 
 ## Install example-app by helm. You need set your URL
 ```
-URL=drill-admin-ui.10.66.218.100.sslip.io
+URL=example-app.10.66.218.100.sslip.io
 helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingress.hosts[0].paths[0].path=/ example-app ./example-app
 ```

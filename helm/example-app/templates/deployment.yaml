@@ -28,13 +28,13 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: java-agent
-          image: drill4j/java-agent:0.7.0-28
-          # command: [ "/bin/bash", "-c", "--" ]
-          # args: [ "while true; do sleep 30; done;" ]
-          volumeMounts:
-          - name: agent-files
-            mountPath: /java-agent
+        # - name: java-agent
+        #   image: drill4j/java-agent:0.7.0-28
+        #   command: [ "/bin/bash", "-c", "--" ]
+        #   args: [ "while true; do sleep 30; done;" ]
+        #   volumeMounts:
+        #   - name: agent-files
+        #     mountPath: /java-agent
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -43,7 +43,7 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-              protocol: TCP
+              # protocol: TCP
           livenessProbe:
             httpGet:
               path: /
@@ -52,9 +52,9 @@ spec:
             httpGet:
               path: /
               port: 8080
-          volumeMounts:
-          - name: agent-files
-            mountPath: /data
+          # volumeMounts:
+          # - name: agent-files
+          #   mountPath: /data
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -69,6 +69,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      volumes:
-      - name: agent-files
-        emptyDir: {}
+      # volumes:
+      # - name: agent-files
+      #   emptyDir: {}
