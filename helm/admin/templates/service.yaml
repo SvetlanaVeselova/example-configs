@@ -9,6 +9,9 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 8090
-      name: "8090"
+      name: port8090
   selector:
     {{- include "admin.selectorLabels" . | nindent 4 }}
+  {{- if .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+  {{- end }}
