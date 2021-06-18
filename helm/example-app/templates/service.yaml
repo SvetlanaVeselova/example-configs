@@ -9,7 +9,7 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 8080
-      protocol: TCP
+      # protocol: TCP
       name: port8080
   selector:
     {{- include "example-app.selectorLabels" . | nindent 4 }}
