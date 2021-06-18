@@ -27,3 +27,20 @@ helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingr
 URL=example-app.10.66.218.100.sslip.io
 helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingress.hosts[0].paths[0].path=/ example-app ./example-app
 ```
+
+
+# Yet another install
+## Install drill admin by helm. You need set your URL (admin is web for swagger)
+```
+helm install -n drill --set persistence.enabled=true,ingress.enabled=true,ingress.hosts[0].host=drill-admin.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ drill-admin ./admin
+```
+
+## Install drill admin-ui by helm. You need set your URL
+```
+helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=drill-admin-ui.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ drill-admin-ui ./admin-ui
+```
+
+## Install example-app by helm. You need set your URL
+```
+helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=exampleapp.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ exampleapp ./example-app
+```
