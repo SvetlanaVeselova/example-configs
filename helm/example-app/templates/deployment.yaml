@@ -44,14 +44,24 @@ spec:
             - name: http
               containerPort: 8080
               # protocol: TCP
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8080
           livenessProbe:
-            httpGet:
-              path: /
-              port: 8080
+            exec:
+              command:
+              - ls
+              - /app/spring-petclinic.jar
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 8080
           readinessProbe:
-            httpGet:
-              path: /
-              port: 8080
+            exec:
+              command:
+              - ls
+              - /app/spring-petclinic.jar
           # volumeMounts:
           # - name: agent-files
           #   mountPath: /data
