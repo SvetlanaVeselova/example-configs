@@ -28,14 +28,26 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        - env:
+            - name: AGENT_VERSION
+              value: latest
+            - name: AUTOTEST_AGENT_VERSION
+              value: latest
+          name: drill-agent
+          image: adenmin/drill-agent-scripts:0.2.0
+          command: ["sh", "/agent-download.sh"]
+          volumeMounts:
+            - mountPath: /data
+              name: agent-files
         # - name: java-agent
         #   image: drill4j/java-agent:0.7.0-28
-        #   command: [ "/bin/bash", "-c", "--" ]
-        #   args: [ "while true; do sleep 30; done;" ]
         #   volumeMounts:
-        #   - name: agent-files
-        #     mountPath: /java-agent
+        #     - name: agent-files
+        #       mountPath: /java-agent
         - name: {{ .Chart.Name }}
+          env:
+          - name: JAVA_TOOL_OPTIONS
+            value: '"-agentpath:/data/agent/libdrill_agent.so=drillInstallationDir=/data/agent,adminAddress=drill-admin:8090,agentId=pet,buildVersion=0.1.0,logLevel=DEBUG"'
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -62,9 +74,9 @@ spec:
               command:
               - ls
               - /app/spring-petclinic.jar
-          # volumeMounts:
-          # - name: agent-files
-          #   mountPath: /data
+          volumeMounts:
+          - name: agent-files
+            mountPath: /data
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -79,6 +91,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      # volumes:
-      # - name: agent-files
-      #   emptyDir: {}
+      volumes:
+      - name: agent-files
+        emptyDir: {}
