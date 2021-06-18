@@ -34,8 +34,8 @@ spec:
             - name: AUTOTEST_AGENT_VERSION
               value: latest
           name: drill-agent
-          image: adenmin/drill-agent-scripts:0.2.0
-          command: ["sh", "/agent-download.sh"]
+          image: drill4j/agent-download
+          # command: ["sh", "/agent-download.sh"]
           volumeMounts:
             - mountPath: /data
               name: agent-files
