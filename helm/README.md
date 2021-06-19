@@ -29,11 +29,19 @@ helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingr
 ```
 
 
+# Installation NGINX Ingress Controller
+```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+
 # Yet another install
-## Reserve public IP address in CLoud
+## Get public IP address of Ingress Controller
 PUBLICIP=xx.xx.xx.xx
 ## Change . to - in public ip address. Create new variable $URL
-PUBLICIPDASH=xx-xx-xx-xx
+PUBLICIPDASH=84-252-132-243
 
 ## Create variable for URL of admin
 ## Install drill admin by helm. You need set your URL (admin is web for swagger)
