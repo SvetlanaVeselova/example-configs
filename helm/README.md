@@ -30,17 +30,28 @@ helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingr
 
 
 # Yet another install
+## Reserve public IP address in CLoud
+PUBLICIP=xx.xx.xx.xx
+## Change . to - in public ip address. Create new variable $URL
+PUBLICIPDASH=xx-xx-xx-xx
+
+## Create variable for URL of admin
+URLADMIN=admin.$PUBLICIPDASH.my.local-ip.co
 ## Install drill admin by helm. You need set your URL (admin is web for swagger)
 ```
-helm install -n drill --set persistence.enabled=true,ingress.enabled=true,ingress.hosts[0].host=drill-admin.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ drill-admin ./admin
+helm install -n drill --set persistence.enabled=true,ingress.enabled=true,ingress.hosts[0].host=$URLADMIN,ingress.hosts[0].paths[0].path=/ drill-admin ./admin
 ```
 
+## Create variable for URL of admin-ui
+URLADMINUI=adminui.$PUBLICIPDASH.my.local-ip.co
 ## Install drill admin-ui by helm. You need set your URL
 ```
-helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=drill-admin-ui.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ drill-admin-ui ./admin-ui
+helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URLADMINUI,ingress.hosts[0].paths[0].path=/ drill-admin-ui ./admin-ui
 ```
 
+## Create variable for URL of admin-ui
+URLEXAMPLEAPP=exampleapp.$PUBLICIPDASH.my.local-ip.co
 ## Install example-app by helm. You need set your URL
 ```
-helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=exampleapp.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ exampleapp ./example-app
+helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URLEXAMPLEAPP,ingress.hosts[0].paths[0].path=/ exampleapp ./example-app
 ```
