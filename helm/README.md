@@ -29,18 +29,37 @@ helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URL,ingr
 ```
 
 
+# Installation NGINX Ingress Controller
+```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+
 # Yet another install
+## Get public IP address of Ingress Controller
+PUBLICIP=xx.xx.xx.xx
+## Change . to - in public ip address. Create new variable $URL
+PUBLICIPDASH=xx-xx-xx-xx
+
+## Create variable for URL of admin
 ## Install drill admin by helm. You need set your URL (admin is web for swagger)
 ```
-helm install -n drill --set persistence.enabled=true,ingress.enabled=true,ingress.hosts[0].host=drill-admin.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ drill-admin ./admin
+URLADMIN=admin.$PUBLICIPDASH.my.local-ip.co
+helm install -n drill --set persistence.enabled=true,ingress.enabled=true,ingress.hosts[0].host=$URLADMIN,ingress.hosts[0].paths[0].path=/ drill-admin ./admin
 ```
 
+## Create variable for URL of admin-ui
 ## Install drill admin-ui by helm. You need set your URL
 ```
-helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=drill-admin-ui.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ drill-admin-ui ./admin-ui
+URLADMINUI=adminui.$PUBLICIPDASH.my.local-ip.co
+helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URLADMINUI,ingress.hosts[0].paths[0].path=/ drill-admin-ui ./admin-ui
 ```
 
+## Create variable for URL of admin-ui
 ## Install example-app by helm. You need set your URL
 ```
-helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=exampleapp.178-154-208-157.my.local-ip.co,ingress.hosts[0].paths[0].path=/ exampleapp ./example-app
+URLEXAMPLEAPP=exampleapp.$PUBLICIPDASH.my.local-ip.co
+helm install -n drill --set ingress.enabled=true,ingress.hosts[0].host=$URLEXAMPLEAPP,ingress.hosts[0].paths[0].path=/ exampleapp ./example-app
 ```
