@@ -41,7 +41,7 @@ helm install ingress-nginx ingress-nginx/ingress-nginx
 ## Get public IP address of Ingress Controller
 PUBLICIP=xx.xx.xx.xx
 ## Change . to - in public ip address. Create new variable $URL
-PUBLICIPDASH=84-252-132-243
+PUBLICIPDASH=xx-xx-xx-xx
 
 ## Create variable for URL of admin
 ## Install drill admin by helm. You need set your URL (admin is web for swagger)
