@@ -37,9 +37,9 @@ spec:
             - name: DRILL_AGENTS_SOCKET_TIMEOUT
               value: "120"
             - name: DRILL_DEFAULT_PACKAGES
-              value: "com/epam/ta/reportportal"
+              value: "org/springframework/samples/petclinic"
             - name: JAVA_TOOL_OPTIONS
-              value: "-Xmx6g"
+              value: "-Xmx2g"
             - name: LOG_LEVEL
               value: "DEBUG"
             - name: TEST2CODE_PLUGIN_VERSION
